@@ -29,9 +29,10 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    await client.connect();
 
     const toyCollection = client.db('coffeeDB').collection('toys');
+    const categorieCollection = client.db('coffeeDB').collection('categories');
 
     app.get('/toys',async(req,res)=>{
         const cursor = toyCollection.find();
@@ -47,7 +48,7 @@ async function run() {
 
     app.get('/myToys/:email',async(req,res)=>{
       const result = await toyCollection.find({
-        sellerEmail:req.params.email
+        seller_email:req.params.email
       }).toArray();
       res.send(result)
     })
@@ -55,12 +56,17 @@ async function run() {
     app.get('/allToys/:category',async(req,res)=>{
       const category = req.params.category;
       const toys = await toyCollection.find({
-        subCategory:category
+        sub_Category:category
       }).toArray();
       console.log(toys)
       res.send(toys)
 
     })
+
+    app.get("/categories", async (req, res) => {
+      const result = await categorieCollection.find().toArray();
+      res.send(result);
+    });
 
     
     
@@ -87,6 +93,47 @@ async function run() {
       console.log(result)
       res.send(result)
     })
+
+    // app.get('/categories',async(req,res)=>{
+    //   const toys = await toyCollection.find().toArray();
+    //   const subCategories = toys.map((toy) => toy.sub_category);
+    //   const fieldNames = Array.from(new Set(subCategories));
+    //   const categoryNames = fieldNames.filter((fieldName) => fieldName != null)
+    //   res.send(categoryNames);
+    // })
+
+    app.get("/categories/:id", async (req, res) => {
+      const toys = await toyCollection.find().toArray();
+      const id = parseInt(req.params.id);
+      console.log(id);
+      if (id === 0) {
+        res.send(toys);
+      } else {
+        const categoryToys = toys.filter(
+          (sub) => parseInt(sub.category_id) === id
+        );
+        res.send(categoryToys);
+      }
+    });
+
+
+    app.get("/toySearch/:text", async (req, res) => {
+ 
+
+      const text = req.params.text;
+      const result = await toyCollection
+        .find({
+          $or: [
+            { toy_name: { $regex: text, $options: "i" } },
+            { sub_category: { $regex: text, $options: "i" } },
+          ],
+        })
+        .toArray();
+      res.send(result);
+    });
+
+
+    // })
 
     app.delete('/toys/:id',async(req,res)=>{
       const id = req.params.id;

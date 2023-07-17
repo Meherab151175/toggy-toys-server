@@ -94,13 +94,7 @@ async function run() {
       res.send(result)
     })
 
-    // app.get('/categories',async(req,res)=>{
-    //   const toys = await toyCollection.find().toArray();
-    //   const subCategories = toys.map((toy) => toy.sub_category);
-    //   const fieldNames = Array.from(new Set(subCategories));
-    //   const categoryNames = fieldNames.filter((fieldName) => fieldName != null)
-    //   res.send(categoryNames);
-    // })
+   
 
     app.get("/categories/:id", async (req, res) => {
       const toys = await toyCollection.find().toArray();

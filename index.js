@@ -9,6 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+  // Add other CORS headers as needed
+  next();
+});
+
 app.get('/',(req,res)=>{
     res.send('Toggy server is running');
 })
